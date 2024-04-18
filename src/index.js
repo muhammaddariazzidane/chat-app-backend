@@ -2,6 +2,7 @@ import express from 'express';
 import 'dotenv/config';
 import cors from 'cors';
 import './utils/connection.js';
+import auth from './routes/auth.route.js';
 
 const app = express();
 app.use(
@@ -19,6 +20,8 @@ app.use(
 app.use(express.json());
 
 const port = process.env.PORT || 5000;
+
+app.use('/auth', auth);
 
 app.listen(port, () => {
   console.log(`Listening: http://localhost:${port}`);
