@@ -26,7 +26,7 @@ export const Login = async (req, res) => {
       },
       `${process.env.SECRET_KEY}`
     );
-    return res.status(200).json({ message: 'Login Successfully', token, user });
+    return res.status(200).json({ message: 'Berhasil masuk', token, user });
   } catch (error) {
     console.error('Internal server error:', error);
     return res.status(500).json({ message: error });
@@ -51,7 +51,7 @@ export const Register = async (req, res) => {
     await createUser(validatedUser.data);
 
     return res.status(201).json({
-      message: 'User registered successfully',
+      message: 'Berhasil registrasi',
     });
   } catch (error) {
     console.error('Internal server error:', error);
