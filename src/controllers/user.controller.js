@@ -48,7 +48,6 @@ export const updateProfile = async (req, res) => {
 
   if (!user)
     return res.status(404).json({ message: 'Pengguna Tidak ditemukan' });
-
   try {
     const validatedUser = await handleValidation(
       req,
