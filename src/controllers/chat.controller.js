@@ -10,31 +10,31 @@ import {
 } from '../validations/chat.validation.js';
 import { handleValidation } from '../helpers/validation.helper.js';
 
-export const getMessage = async (req, res) => {
-  const { id: receiver } = req.params;
-  const { id: sender } = req.user;
+export const getMessage = async (request, response) => {
+  const { id: receiver } = request.params;
+  const { id: sender } = request.user;
 
   try {
     const chats = await findChatsBySenderAndReceiver(sender, receiver);
 
-    return res.status(200).json({
+    return response.status(200).json({
       message: 'Berhasil mendapatkan data pesan',
       chats,
     });
   } catch (error) {
     console.error('Internal server error:', error);
-    return res.status(500).json({ message: error });
+    return response.status(500).json({ message: error });
   }
 };
-export const sendMessage = async (req, res) => {
-  const { id: sender } = req.user;
-  const { id: receiver } = req.params;
-  const { file } = req.body;
+export const sendMessage = async (request, response) => {
+  const { id: sender } = request.user;
+  const { id: receiver } = request.params;
+  const { file } = request.body;
 
   try {
     const validatedChat = await handleValidation(
-      req,
-      res,
+      request,
+      response,
       createChatValidation
     );
 
@@ -48,20 +48,22 @@ export const sendMessage = async (req, res) => {
     };
     await createChat(newChat);
 
-    return res.status(201).json({ message: 'Berhasil membuat pesan', newChat });
+    return response
+      .status(201)
+      .json({ message: 'Berhasil membuat pesan', newChat });
   } catch (error) {
     console.error('Internal server error:', error);
-    return res.status(500).json({ message: error });
+    return response.status(500).json({ message: error });
   }
 };
-export const updateMessage = async (req, res) => {
-  const { id } = req.params;
-  const payload = req.body;
+export const updateMessage = async (request, response) => {
+  const { id } = request.params;
+  const payload = request.body;
 
   try {
     const validatedChat = await handleValidation(
-      req,
-      res,
+      request,
+      response,
       updateChatValidation
     );
 
@@ -69,20 +71,20 @@ export const updateMessage = async (req, res) => {
 
     await updateChatById(id, payload);
 
-    return res.status(200).json({ message: 'berhasil edit pesan' });
+    return response.status(200).json({ message: 'berhasil edit pesan' });
   } catch (error) {
     console.error('Internal server error:', error);
-    return res.status(500).json({ message: error });
+    return response.status(500).json({ message: error });
   }
 };
-export const deleteMessage = async (req, res) => {
-  const { id } = req.params;
+export const deleteMessage = async (request, response) => {
+  const { id } = request.params;
 
   try {
     await deleteChatById(id);
-    return res.status(200).json({ message: 'Berhasil menghapus pesan' });
+    return response.status(200).json({ message: 'Berhasil menghapus pesan' });
   } catch (error) {
     console.error('Internal server error:', error);
-    return res.status(500).json({ message: error });
+    return response.status(500).json({ message: error });
   }
 };

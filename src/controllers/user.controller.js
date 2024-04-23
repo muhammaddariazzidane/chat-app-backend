@@ -4,68 +4,54 @@ import { findUser } from '../services/auth.service.js';
 import { getAllUsers, updateUser } from '../services/user.service.js';
 import { updateUserValidation } from '../validations/user.validation.js';
 
-export const getUser = async (req, res) => {
-  const user = await userModel.findOne(
-    {
-      _id: req.user.id,
-    },
-    'name email profilePicture'
-  );
-  return res
-    .status(200)
-    .json({ message: 'Berhasil mendapatkan data profil', user });
-};
-
-export const getUsers = async (req, res) => {
-  const { name } = req.query;
-
+export const getUser = async (request, response) => {
   try {
-    let users;
-
-    if (name) {
-      users = await userModel.find(
-        { name: { $regex: name, $options: 'i' } },
-        'name email profilePicture'
-      );
-      if (users.length === 0)
-        return res.status(404).json({ message: 'Pengguna tidak ditemukan' });
-    } else {
-      users = await userModel.find({}, 'name email profilePicture');
-    }
-
-    return res
+    const user = await findUser(request.user.email);
+    return response
       .status(200)
-      .json({ message: 'Berhasil mendapatkan data pengguna', users });
+      .json({ message: 'Berhasil mendapatkan data profil', user });
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ message: 'Internal Server Error', error });
+    console.error('Internal server error:', error);
+    return response.status(500).json({ message: error });
   }
 };
 
-export const updateProfile = async (req, res) => {
-  const { email } = req.body;
+export const getUsers = async (_, response) => {
+  try {
+    const users = await getAllUsers();
+    return response
+      .status(200)
+      .json({ message: 'Berhasil mendapatkan data pengguna', users });
+  } catch (error) {
+    console.error('Internal server error:', error);
+    return response.status(500).json({ message: error });
+  }
+};
+
+export const updateProfile = async (request, response) => {
+  const { email } = request.body;
   const user = await findUser(email);
 
   if (!user)
-    return res.status(404).json({ message: 'Pengguna Tidak ditemukan' });
+    return response.status(404).json({ message: 'Pengguna Tidak ditemukan' });
   try {
     const validatedUser = await handleValidation(
-      req,
-      res,
+      request,
+      response,
       updateUserValidation
     );
     if (!validatedUser.success) return;
 
-    await updateUser(user._id, req.body);
+    await updateUser(user._id, request.body);
 
-    const updatedUser = await findUser(req.body.email);
+    const updatedUser = await findUser(request.body.email);
 
-    return res.status(200).json({
+    return response.status(200).json({
       message: 'Profil kamu berhasil di perbarui',
       updatedUser,
     });
   } catch (error) {
     console.error('Internal server error:', error);
-    return res.status(500).json({ message: error });
+    return response.status(500).json({ message: error });
   }
 };

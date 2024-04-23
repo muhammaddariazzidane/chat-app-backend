@@ -5,19 +5,25 @@ const mapValidationIssuesToErrors = (issues) => {
   }));
 };
 
-export const handleValidation = async (req, res, functionValidation) => {
+export const handleValidation = async (
+  request,
+  response,
+  functionValidation
+) => {
   try {
-    const validatedData = await functionValidation(req.body);
+    const validatedData = await functionValidation(request.body);
     if (!validatedData.success) {
       const {
         error: { issues },
       } = validatedData;
       const errors = mapValidationIssuesToErrors(issues);
-      return res.status(400).json({ message: 'Validation errors', errors });
+      return response
+        .status(400)
+        .json({ message: 'Validation errors', errors });
     }
     return validatedData;
   } catch (error) {
     console.error('Internal server error:', error);
-    return res.status(500).json({ message: error });
+    return response.status(500).json({ message: error });
   }
 };

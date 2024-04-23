@@ -6,15 +6,19 @@ import {
 } from '../validations/auth.validation.js';
 import jwt from 'jsonwebtoken';
 
-export const Login = async (req, res) => {
-  const { email } = req.body;
+export const Login = async (requset, response) => {
+  const { email } = requset.body;
   const user = await findUser(email);
 
   if (!user)
-    return res.status(404).json({ message: 'Pengguna Tidak ditemukan' });
+    return response.status(404).json({ message: 'Pengguna Tidak ditemukan' });
 
   try {
-    const validatedUser = await handleValidation(req, res, userLoginValidation);
+    const validatedUser = await handleValidation(
+      requset,
+      response,
+      userLoginValidation
+    );
 
     if (!validatedUser.success) return;
     const token = jwt.sign(
@@ -26,23 +30,25 @@ export const Login = async (req, res) => {
       },
       `${process.env.SECRET_KEY}`
     );
-    return res.status(200).json({ message: 'Berhasil masuk', token, user });
+    return response
+      .status(200)
+      .json({ message: 'Berhasil masuk', token, user });
   } catch (error) {
     console.error('Internal server error:', error);
-    return res.status(500).json({ message: error });
+    return response.status(500).json({ message: error });
   }
 };
 
-export const Register = async (req, res) => {
-  const { email } = req.body;
+export const Register = async (requset, response) => {
+  const { email } = requset.body;
   const user = await findUser(email);
 
-  if (user) return res.json({ message: 'Pengguna Sudah Terdaftar' });
+  if (user) return response.json({ message: 'Pengguna Sudah Terdaftar' });
 
   try {
     const validatedUser = await handleValidation(
-      req,
-      res,
+      requset,
+      response,
       createUserValidation
     );
 
@@ -50,11 +56,11 @@ export const Register = async (req, res) => {
 
     await createUser(validatedUser.data);
 
-    return res.status(201).json({
+    return response.status(201).json({
       message: 'Berhasil registrasi',
     });
   } catch (error) {
     console.error('Internal server error:', error);
-    return res.status(500).json({ message: error });
+    return response.status(500).json({ message: error });
   }
 };
